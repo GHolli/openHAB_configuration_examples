@@ -6,7 +6,8 @@ __Overview:__
 * [eBUS](#ebus)
 * [Weather station integrations](#weather-station-integrations)
   * [Commercial hardware](#commercial-hardware)
-  * [webhook/httplistener binding](#webhookhttplistener-binding)
+  	- [webhook/httplistener binding](#webhookhttplistener-binding)
+  * [Weather station bingings](#some-bindings-for-wifi-weather-stations)
   * [DIY (do it yourself)](#diy-do-it-yourself)
 
 ## eBUS
@@ -14,23 +15,28 @@ See [here](https://github.com/GHolli/eBUS-control) for further details on eBUS.
 
 ## Weather station integrations
 ### Commercial hardware
-* [Fine Offset](http://www.foshk.com/) hardware/OEM manufacturer
+* [Fine Offset](http://www.foshk.com/) hardware/OEM/whitelabel manufacturer
 * Wi-Fi gateway (ESP8266 based) [ecowitt GW1100](https://www.ecowitt.com/shop/goodsDetail/107#)
 * [Wi-Fi Weather Stations](https://www.ecowitt.com/shop/goodsPage/1/43)
 
 There are plenty of re-branded (ELV, Conrad, Froggit, dnt, oneConcept, Velleman, Eurochron, ...) weather stations (e.g. WH1080, WS1080, WH3080, WS3080, ...) based on this hardware.
-See [here](https://wetterstationsforum.info/wiki/doku.php?id=wiki:wetterstationen) for an overview.
+See [here](https://wetterstationsforum.info/wiki/doku.php?id=wiki:wetterstationen) and [here](https://www.wxforum.net/index.php?topic=40730.0) for an (partial) overview.
 
-Some bindings for WiFi weather stations:
+### Some bindings for WiFi weather stations:
 * [IpObserver Binding](https://www.openhab.org/addons/bindings/ipobserver/). Previously called “Ambient Weather WS-1400IP weather station” binding.
 This Binding fetches the data from your local gateways web interface.
 [Initial contribution](https://github.com/openhab/openhab-addons/pull/10567) to openHAB Add-ons.
 * The [Ambient Weather Binding](https://www.openhab.org/addons/bindings/ambientweather/) has a quite similar name, but works very differently: it fetches the data from the ambientweather.net cloud service. No possibility to fetch the data locally.
 * Ambient Weather ObserverIP Module is the name for a (hardware) gateway of Ambient Weather. Don't mix it up with the naming of the bindings.
 * Retrieving the information from the web interface should be also possible via the [HTTP Binding](https://www.openhab.org/addons/bindings/http/). Not tested yet (especially the login authentication).
-* A quite interesting binding, which can receive data from gateways via http GET/POST, can be found here: [webhook/httplistener binding](https://community.openhab.org/t/webhook-new-very-simple-binding-for-listening-incomming-http-requests/123597). It's not part of the official distribution yet.
+* A quite interesting binding, which can receive data from gateways via http GET/POST, can be found here: [webhook/httplistener binding](https://community.openhab.org/t/webhook-new-very-simple-binding-for-listening-incomming-http-requests/123597). It's not part of the official distribution yet. Introduction/discussion thread [here](https://community.openhab.org/t/webhook-new-very-simple-binding-for-listening-incomming-http-requests/123597).
+<br>Technically I really like the idea, because the gateway is pushing the information rather than the server needs to fetch it. So if the gateway goes offline, not network traffic is caused.
+<br>Unfortunately the binding currently does not work for my gateway (it throws an exception).
+* Another interesting binding is <!-- mimicking --> using the official protocol, which is also used by the WS View App ([Android](https://play.google.com/store/apps/details?id=com.ost.wsview)/[iPhone](https://apps.apple.com/de/app/ws-view/id1362944193)): [Fine Offset Weather Station Binding](https://community.openhab.org/t/fine-offset-weather-station-binding/134164) on the Add-on Marketplace. There is also a [discussion](https://community.openhab.org/t/fine-offset-weather-station-binding-beta-and-discussion/134167) thread. Here the link to the [Initial contribution](https://github.com/openhab/openhab-addons/pull/12464). It also can work offline and is not part of the official released bindings yet.
+<br>Great (brandnew) binding with auto discovery functionality, it is working like a charm!
+<br>My recommendation :thumbsup:
 
-### webhook/httplistener binding
+#### webhook/httplistener binding
 Great concept, enables the gateway to actively publish the values. It's not yet included in the official bindings and has some flaws...
 
 *Installation and setup:*
@@ -121,6 +127,16 @@ Self-made RF to WiFi MQTT gateway:
 
 * Some ESP8266 module
 * [HopeRF RFM69CW](https://www.hoperf.com/modules/rf_transceiver/RFM69C.html) or [TI CC1101](https://www.ti.com/product/CC1101)
-* [Optional] Microcontroller board (e.g. STM32F103C8T6)
-
+* [Optional] Microcontroller board (e.g. STM32F103C8T6).
 I used the additional microcontroller for decoding the RF signal and sending it to the ESP8266 via serial interface.
+
+Software Libraries:
+* Arduino library [EspMQTTClient](https://github.com/plapointe6/EspMQTTClient) by Patrick Lapointe. With this library publishing MQTT messages to the server is very easy.
+* Some CC1101 or RFM69CW library
+
+Advantages:
+* Small BOM costs
+* High flexibility with various kinds of sensors, no dependendy on a manufacturer
+* Easy to repair
+
+Disadvantage: You should like tinkering :wink:
